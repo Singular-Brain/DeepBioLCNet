@@ -336,8 +336,10 @@ class Network(torch.nn.Module):
         injects_v = kwargs.get("injects_v", {})
         self.true_label = kwargs.get('true_label', None)
         kwargs['pred_label'] = None
-        kwargs['local_rewarding'] = self.local_rewarding
-        kwargs['neuron_per_class'] = self.neuron_per_class
+        if hasattr(self, 'local_rewarding'):
+            kwargs['local_rewarding'] = self.local_rewarding
+        if hasattr(self, 'neuron_per_class'):
+            kwargs['neuron_per_class'] = self.neuron_per_class
         
         # Compute reward.
         kwargs['give_reward'] = False
@@ -441,15 +443,20 @@ class Network(torch.nn.Module):
 
             # Run synapse updates.
             for c in self.connections:
-                if t < self.time-self.learning_period and c[1].startswith("output"):
-                    self.connections[c].update(
-                        mask=masks.get(c, None), learning=False, **kwargs
-                        )
-                else:
-                    kwargs['target_name'] = c[1]
+                if self.reward_fn is None:
                     self.connections[c].update(
                         mask=masks.get(c, None), learning=self.learning, **kwargs
                         )
+                else:
+                    if t < self.time-self.learning_period and c[1].startswith("output"):
+                        self.connections[c].update(
+                            mask=masks.get(c, None), learning=False, **kwargs
+                            )
+                    else:
+                        kwargs['target_name'] = c[1]
+                        self.connections[c].update(
+                            mask=masks.get(c, None), learning=self.learning, **kwargs
+                            )
 
             # # Get input to all layers.
             # current_inputs.update(self._get_inputs())

@@ -764,7 +764,7 @@ class LocalConnection(AbstractConnection):
          
         assert (
             target.n == out_channels * self.conv_prod
-        ), "Target layer size must be n_filters * (kernel_size ** 2)."
+        ), "Target layer size must be n_filters * (kernel_size ** 2)." + f"{target.n} = {out_channels} * {self.conv_prod}"
 
         w = kwargs.get("w", None)
 
