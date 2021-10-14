@@ -2,6 +2,7 @@ import tempfile
 from typing import Dict, Optional, Type, Iterable
 
 import torch
+from torch.types import Device
 
 from .monitors import AbstractMonitor
 from .nodes import Nodes, CSRMNodes
@@ -415,7 +416,7 @@ class Network(torch.nn.Module):
                 if l in current_inputs:
                     self.layers[l].forward(x=current_inputs[l])
                 else:
-                    self.layers[l].forward(x=torch.zeros(self.layers[l].s.shape))
+                    self.layers[l].forward(x=torch.zeros(self.layers[l].s.shape).to(self.layers[l].s.device))
                 
                 # Clamp neurons to spike.
                 clamp = clamps.get(l, None)
