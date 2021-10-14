@@ -249,7 +249,7 @@ class PostPre(LearningRule):
             1,
             out_channels,
             1,
-        )
+        ).to(self.connection.w.device)
         
         target_s = self.target.s.type(torch.float).reshape(batch_size, out_channels * width_out*height_out,1)
         target_s = target_s * torch.eye(out_channels * width_out * height_out).to(self.connection.w.device)
@@ -261,7 +261,7 @@ class PostPre(LearningRule):
             1,
             out_channels,
             1,
-        )
+        ).to(self.connection.w.device)
         # Pre-synaptic update.
         if self.nu[0]:
             pre = self.reduction(torch.bmm(target_x,source_s), dim=0)
