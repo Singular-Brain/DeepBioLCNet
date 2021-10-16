@@ -479,6 +479,89 @@ def plot_locally_connected_weights_meh(weights: torch.Tensor,
         im.set_data(reshaped)
 
     return im
+
+
+def plot_locally_connected_weights_one_chan(weights: torch.Tensor,
+    n_filters: int,
+    in_chans: int,
+    slice_to_plot: int,
+    input_size: int,
+    kernel_size: Union[int, Tuple[int, int]],
+    conv_size: Union[int, Tuple[int, int]],
+    channel_to_plot: int,
+    wmin: float = 0.0,
+    wmax: float = 1.0,
+    im: Optional[AxesImage] = None,
+    lines: bool = True,
+    figsize: Tuple[int, int] = (5, 5),
+    cmap: str = "hot_r",
+    color: str='r'
+    ) -> AxesImage:
+    # language=rst
+    """
+    Plot a connection weight matrix of a :code:`Connection` with `locally connected
+    structure <http://yann.lecun.com/exdb/publis/pdf/gregor-nips-11.pdf>_.
+    :param weights: Weight matrix of Conv2dConnection object.
+    :param n_filters: No. of convolution kernels in use.
+    :param in_channels: No. of input channels
+    :param slice_to_plot: The 2D slice to plot
+    :param inp_size: The square input size
+    :param kernel_size: Side length(s) of 2D convolution kernels.
+    :param conv_size: Side length(s) of 2D convolution population.
+    :param wmin: Minimum allowed weight value.
+    :param wmax: Maximum allowed weight value.
+    :param im: Used for re-drawing the weights plot.
+    :param lines: Whether or not to draw horizontal and vertical lines separating input
+        regions.
+    :param figsize: Horizontal, vertical figure size in inches.
+    :param cmap: Matplotlib colormap.
+    :return: Used for re-drawing the weights plot.
+    """
+
+    n_sqrt = int(np.ceil(np.sqrt(n_filters)))
+
+    sel_slice = weights.view(in_chans, n_filters, conv_size, conv_size, kernel_size, kernel_size).cpu()
+    sel_slice = sel_slice[slice_to_plot, channel_to_plot,...]
+    sel_slice = sel_slice.unsqueeze(0)
+
+    reshaped = reshape_locally_connected_weights_meh(
+        sel_slice, 1, kernel_size, conv_size, input_size
+    )
+
+    if not im:
+        fig, ax = plt.subplots(figsize=figsize)
+
+        im = ax.imshow(reshaped.cpu(), cmap=cmap, vmin=wmin, vmax=wmax)
+        div = make_axes_locatable(ax)
+        cax = div.append_axes("right", size="5%", pad=0.05)
+        kernel_size = _pair(kernel_size)
+        conv_size = _pair(conv_size)
+        
+        if lines:
+            for i in range(
+                n_sqrt * kernel_size[0],
+                n_sqrt * conv_size[0] * kernel_size[0],
+                n_sqrt * kernel_size[0],
+            ):
+                ax.axhline(i - 0.5, color=color, linestyle="--")
+
+            for i in range(
+                n_sqrt * kernel_size[1],
+                n_sqrt * conv_size[1] * kernel_size[1],
+                n_sqrt * kernel_size[1],
+            ):
+                ax.axvline(i - 0.5, color=color, linestyle="--")
+
+        ax.set_xticks(())
+        ax.set_yticks(())
+        ax.set_aspect("auto")
+
+        plt.colorbar(im, cax=cax)
+        fig.tight_layout()
+    else:
+        im.set_data(reshaped)
+
+    return im
     
 def plot_locally_connected_weights_meh2(
     weights: torch.Tensor,
