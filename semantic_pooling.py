@@ -627,7 +627,7 @@ if WANDB:
 net = LCNet(**network_hparams, **data_hparams, wandb_active = WANDB)
 net
 
-net.fit(n_train = 2_000, dataloader = dataloader)
+net.fit(n_train = config['n_train'], dataloader = dataloader)
 
 """**Save Model:**"""
 net.save(config.save_name)
