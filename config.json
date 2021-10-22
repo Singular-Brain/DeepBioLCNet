@@ -26,5 +26,5 @@
     "inh_factor": [20,20],
     "norm_factor": [4.5, 2],
     "clamp_intensity": null,
-    "WANDB": true,
+    "WANDB": true
 }
