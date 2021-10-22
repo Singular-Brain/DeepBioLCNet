@@ -1,0 +1,22 @@
+{
+    "os": "Linux-5.4.0-80-generic-x86_64-with-glibc2.31",
+    "python": "3.9.5",
+    "heartbeatAt": "2021-10-22T09:59:08.177763",
+    "startedAt": "2021-10-22T09:59:07.047227",
+    "docker": null,
+    "cpu_count": 48,
+    "cuda": null,
+    "args": [],
+    "state": "running",
+    "program": "/afs/inf.ed.ac.uk/user/s22/s2254375/Python/DeepBioLCNet/semantic_pooling.py",
+    "codePath": "semantic_pooling.py",
+    "git": {
+        "remote": "https://github.com/Singular-Brain/DeepBioLCNet",
+        "commit": "2d3c63286b91bf6d40b2ab2db6568924f7a17503"
+    },
+    "email": null,
+    "root": "/afs/inf.ed.ac.uk/user/s22/s2254375/Python/DeepBioLCNet",
+    "host": "guitar.inf.ed.ac.uk",
+    "username": "s2254375",
+    "executable": "/afs/inf.ed.ac.uk/user/s22/s2254375/miniconda3/bin/python"
+}

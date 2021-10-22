@@ -623,12 +623,12 @@ dataloader, val_loader = load_datasets(network_hparams, data_hparams, mask, mask
 
 manual_seed(SEED)
 if WANDB:
-    wandb.init(project='SemanticPooling', entity='singularbrain', config=network_hparams)
-net = LCNet(**network_hparams, **data_hparams, wandb_active = WANDB)
+    wandb_run = wandb.init(project='SemanticPooling', entity='singularbrain', config=network_hparams)
+net = LCNet(**network_hparams, **data_hparams, wandb_active = WANDB, verbose = Falase)
 net
 
 net.fit(n_train = config['n_train'], dataloader = dataloader)
 
 """**Save Model:**"""
-net.save(config.save_name)
+net.save(f"./{wandb_run.name}.pt")
 
