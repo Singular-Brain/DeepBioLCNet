@@ -1,5 +1,5 @@
 {
-    "n_train": 1000,
+    "n_train": 5000,
     "intensity": 256,
     "crop_size": 22,
     "round_input": false,
@@ -16,7 +16,7 @@
     "trace_additive" : false,
     "update_rule": "PostPre",
     "update_rule_inh" : null,
-    "nu_LC": [1e-2,1],
+    "nu_LC": [1e-2,2],
     "soft_bound": true,
     "wmin": [0,0],
     "wmax": [1,1],
