@@ -1118,3 +1118,39 @@ def plot_voltages(
         plt.tight_layout()
 
     return ims, axes
+
+
+def plot_LC_timepoint_spikes(spikes: torch.Tensor,
+    timepoint: int,
+    n_filters: int,
+    in_chans: int,
+    slice_to_plot: int,
+    conv_size: Union[int, Tuple[int, int]],
+    im: Optional[AxesImage] = None,
+    lines: bool = True,
+    figsize: Tuple[int, int] = (10, 10),
+    cmap: str = "hot_r",
+    color: str='r'
+    ):
+    # language=rst
+    """
+    """
+
+    n_sqrt = int(np.ceil(np.sqrt(n_filters)))
+    sel_slice = spikes[timepoint].view(in_chans, n_filters, conv_size, conv_size).cpu()
+    sel_slice = sel_slice[slice_to_plot, ...].view(n_filters, conv_size, conv_size)
+    spikes_ = np.zeros((n_sqrt*conv_size, n_sqrt*conv_size))
+    filt_counter = 0
+
+    fig, ax = plt.subplots(figsize=figsize)
+
+    for n1 in range(n_sqrt):
+        for n2 in range(n_sqrt):
+            filter_ = sel_slice[filt_counter, :, :].view(conv_size, conv_size)
+            spikes_[n1 * conv_size : (n1 + 1) * conv_size, n2 * conv_size : (n2 + 1) * conv_size] = filter_
+            filt_counter += 1
+            ax.axhline((n1 + 1) * conv_size, color="g", linestyle="-")
+            ax.axvline((n2 + 1) * conv_size, color="g", linestyle="--")
+    ax.imshow(spikes_, cmap='Greys')
+    return spikes_
+    
