@@ -2,7 +2,8 @@ from abc import ABC
 from typing import Union, Optional, Sequence
 import warnings
 from bindsnet import manual_seed
-
+import torch.nn.functional as F
+from torch.nn.modules.utils import _pair
 import torch
 import numpy as np
 
@@ -221,6 +222,7 @@ class PostPre(LearningRule):
             del source_x, target_s
 
         super().update()
+    
     def _local_connection_update(self, **kwargs) -> None:
         # language=rst
         """
@@ -251,6 +253,7 @@ class PostPre(LearningRule):
             1,
         ).to(self.connection.w.device)
         
+        print(target_x.shape, source_s.shape)
         target_s = self.target.s.type(torch.float).reshape(batch_size, out_channels * width_out*height_out,1)
         target_s = target_s * torch.eye(out_channels * width_out * height_out).to(self.connection.w.device)
         source_x = self.source.x.unfold(-2, kernel_width,stride[0]).unfold(-2, kernel_height, stride[1]).reshape(
@@ -262,56 +265,82 @@ class PostPre(LearningRule):
             out_channels,
             1,
         ).to(self.connection.w.device)
+
+        # print(target_s.shape, source_x.shape)
+        # print(self.connection.w.shape)
+        # print(torch.bmm(target_x,source_s).shape)
+        # print(self.reduction(torch.bmm(target_x,source_s), dim=0).shape)
         # Pre-synaptic update.
         if self.nu[0]:
             pre = self.reduction(torch.bmm(target_x,source_s), dim=0)
-            self.connection.w -= self.nu[0] * pre.view(self.connection.w.size())*self.soft_bound_decay()
-
+            self.connection.w -= self.nu[0] * pre.view(self.connection.w.size())
         # Post-synaptic update.
         if self.nu[1]:
             post = self.reduction(torch.bmm(target_s, source_x),dim=0)
-            self.connection.w += self.nu[1] * post.view(self.connection.w.size())*self.soft_bound_decay()
+            self.connection.w += self.nu[1] * post.view(self.connection.w.size())
 
         super().update()
 
+    def _connection_update(self, **kwargs) -> None:
+        # language=rst
+        """
+        Post-pre learning rule for ``Connection`` subclass of ``AbstractConnection``
+        class.
+        """
+        batch_size = self.source.batch_size
 
-    # def _local_connection_update(self, **kwargs) -> None:
-    #     # language=rst
-    #     """
-    #     Post-pre learning rule for ``LocalConnection`` subclass of
-    #     ``AbstractConnection`` class.
-    #     """
-    #     # Get LC layer parameters.
-    #     padding, stride = self.connection.padding, self.connection.stride
-    #     batch_size = self.source.batch_size
-    #     kernel_width = self.connection.kernel_size[0]
-    #     kernel_height = self.connection.kernel_size[1]
-    #     in_channels = self.connection.in_channels
-    #     out_channels = self.connection.out_channels
-    #     width_out = self.connection.conv_size[0]
-    #     height_out = self.connection.conv_size[1]
+        # Pre-synaptic update.
+        if self.nu[0]:
+            source_s = self.source.s.view(batch_size, -1).unsqueeze(2).float()
+            target_x = self.target.x.view(batch_size, -1).unsqueeze(1) * self.nu[0]
+            self.connection.w -= self.reduction(torch.bmm(source_s, target_x), dim=0)
+            del source_s, target_x
 
-    #     ## source_x (s): ch_in, w_in, h_in
-    #     ## s_unfold: ch_in, ch_out * w_out * h_out, k ** 2
+        # Post-synaptic update.
+        if self.nu[1]:
+            target_s = (
+                self.target.s.view(batch_size, -1).unsqueeze(1).float() * self.nu[1]
+            )
+            source_x = self.source.x.view(batch_size, -1).unsqueeze(2)
+            self.connection.w += self.reduction(torch.bmm(source_x, target_s), dim=0)
+            del source_x, target_s
 
+        super().update()
 
-    #     ## target_x (s) ch_o, w_o, h_o  
-    #     target_x = self.target.x.reshape(batch_size, out_channels, width_out*height_out).repeat(1, width_out*height_out, out_channels)
-    #     source_s = im2col_indices(self.source.s.type(torch.float), kernel_width, kernel_height, stride=stride, padding=padding).permute(0,2,1)
-        
-    #     target_s = self.target.s.type(torch.float).reshape(batch_size, out_channels, width_out*height_out).repeat(1, width_out*height_out, 1)
-    #     source_x = im2col_indices(self.source.x, kernel_width, kernel_height, stride=stride, padding=padding).permute(0,2,1)
-    #     # Pre-synaptic update.
-    #     if self.nu[0]:
-    #         pre = self.reduction(torch.bmm(target_x,source_s), dim=0)
-    #         self.connection.w -= self.nu[0] * pre.view(self.connection.w.size())
+    def _conv1d_connection_update(self, **kwargs) -> None:
+        # language=rst
+        """
+        Post-pre learning rule for ``Conv1dConnection`` subclass of
+        ``AbstractConnection`` class.
+        """
+        # Get convolutional layer parameters.
+        out_channels, in_channels, kernel_size = self.connection.w.size()
+        padding, stride = self.connection.padding, self.connection.stride
+        batch_size = self.source.batch_size
 
-    #     # Post-synaptic update.
-    #     if self.nu[1]:
-    #         post = self.reduction(torch.bmm(target_s, source_x),dim=0)
-    #         self.connection.w += self.nu[1] * post.view(self.connection.w.size())
+        # Reshaping spike traces and spike occurrences.
+        source_x = F.pad(self.source.x, _pair(padding))
+        source_x = source_x.unfold(-1, kernel_size, stride).reshape(batch_size, -1, in_channels*kernel_size)
+        target_x = self.target.x.view(batch_size, out_channels, -1)
+        source_s = F.pad(self.source.s.float(), _pair(padding))
+        source_s = source_s.unfold(-1, kernel_size, stride).reshape(batch_size, -1, in_channels*kernel_size)
+        target_s = self.target.s.view(batch_size, out_channels, -1).float()
 
-    #     super().update()
+        # Pre-synaptic update.
+        if self.nu[0]:
+            pre = self.reduction(
+                torch.bmm(target_x, source_s), dim=0
+            )
+            self.connection.w -= self.nu[0] * pre.view(self.connection.w.size())
+
+        # Post-synaptic update.
+        if self.nu[1]:
+            post = self.reduction(
+                torch.bmm(target_s, source_x), dim=0
+            )
+            self.connection.w += self.nu[1] * post.view(self.connection.w.size())
+
+        super().update()
 
     def _conv2d_connection_update(self, **kwargs) -> None:
         # language=rst
