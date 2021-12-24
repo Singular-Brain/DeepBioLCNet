@@ -576,6 +576,7 @@ class Hebbian(LearningRule):
         Hebbian learning rule for ``Connection`` subclass of ``AbstractConnection``
         class.
         """
+        
         batch_size = self.source.batch_size
 
         source_s = self.source.s.view(batch_size, -1).unsqueeze(2).float().to(self.connection.w.device)
