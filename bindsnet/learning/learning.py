@@ -870,7 +870,7 @@ class MSTDP(LearningRule):
 
         # Compute weight update based on the eligibility value of the past timestep.
         update = reward * self.eligibility
-        self.connection.w += self.nu[0] * torch.sum(update, dim=0)
+        self.connection.w += self.nu[0] * self.reduction(update, dim=0)
 
         # Initialize P^+ and P^-.
         if not hasattr(self, "p_plus"):
@@ -921,7 +921,6 @@ class MSTDP(LearningRule):
         self.eligibility = torch.bmm(
             target_s, self.p_plus
         ) + torch.bmm(self.p_minus, source_s)
-        self.eligibility = self.eligibility.view(self.connection.w.size())
 
         super().update()
 
