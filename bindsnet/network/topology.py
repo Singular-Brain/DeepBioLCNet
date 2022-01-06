@@ -634,7 +634,7 @@ class LocalConnectionOrig(AbstractConnection):
             s.float().view(s.size(0), -1).to(self.w.device) @ self.w.view(self.source.n, self.target.n)
             + self.b
         )
-        return a_post.view(*self.target.shape)
+        return a_post.view(s.size(0), *self.target.shape)
 
     def update(self, **kwargs) -> None:
         # language=rst
