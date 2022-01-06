@@ -137,9 +137,10 @@ class DynamicDopamineInjection(AbstractReward):
         """
         Computes/modifies reward.
         """
-        self.dopamine = self.dopamine_base
+
         self.layers = kwargs['dopaminergic_layers']
         self.label = kwargs['true_label']
+        self.dopamine = torch.ones((self.label.shape[0],1))*self.dopamine_base
         self.give_reward = kwargs['give_reward']
         self.variant = kwargs['variant']
         self.sub_variant = kwargs['sub_variant']
@@ -147,12 +148,16 @@ class DynamicDopamineInjection(AbstractReward):
         #     self.alpha = kwargs['alpha']
         #     self.gamma = kwargs['gamma']
 
+        
         if self.sub_variant == 'static':
             if self.variant == 'scalar' and self.give_reward:
-                if self.label == kwargs['pred_label']:
-                    self.dopamine += self.rew_base
-                else:
-                    self.dopamine += -self.punish_base
+                # if self.label == kwargs['pred_label']:
+                #     self.dopamine += self.rew_base
+                # else:
+                #     self.dopamine += -self.punish_base
+                self.dopamine = self.dpamine + (self.label==kwargs['pred_label']) * self.rew_base \
+                    - (self.label!=kwargs['pred_label']) * self.punish_base
+
 
             elif self.variant == 'per_spike' and self.give_reward:
                 self.dopamine += kwargs['target_spikes'] * self.rew_base - (kwargs['sum_spikes'].sum()-kwargs['target_spikes']) * self.punish_base

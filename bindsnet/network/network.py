@@ -383,14 +383,14 @@ class Network(torch.nn.Module):
             # Make a decision and compute reward
             if  self.online == False:
                 if (self.has_decision_period and t == self.observation_period+self.decision_period):
-                    out_spikes = self.spikes["output"].get("s").view(t, self.n_classes, self.neuron_per_class)
-                    sum_spikes = out_spikes[self.observation_period:t,:,:].sum(0).sum(1)
-                    kwargs['pred_label'] = torch.argmax(sum_spikes)
+                    out_spikes = self.spikes["output"].get("s").view(t, self.batch_size, self.n_classes, self.neuron_per_class)
+                    sum_spikes = out_spikes[self.observation_period:t,:,:].sum(0).sum(2)
+                    kwargs['pred_label'] = torch.argmax(sum_spikes, dim=0)
                     kwargs['true_label'] = self.true_label
                     kwargs['give_reward'] = True
                     #TODO: if you want per spike modulation, pls calculate rew_base and punish_base
-                    kwargs['target_spikes'] = sum_spikes[kwargs['true_label']]
-                    kwargs['pred_spikes'] = sum_spikes[kwargs['pred_label']]
+                    kwargs['target_spikes'] = sum_spikes[:, kwargs['true_label']]
+                    kwargs['pred_spikes'] = sum_spikes[:, kwargs['pred_label']]
                     kwargs['sum_spikes'] =  sum_spikes
                     assert kwargs['variant'] == 'scalar' or kwargs['variant'] == 'per_spike' or kwargs['variant'] == 'per_spike_target', "the variant must be scalar or per_spike"
                     if self.learning == True:

@@ -736,7 +736,7 @@ class MSTDP(LearningRule):
         )
 
         # Compute weight update based on the eligibility value of the past timestep.
-        update = reward * self.eligibility
+        update =  reward.view(self.batch_siez, 1, 1).to(self.connection.w.device) * self.eligibility
 
         if self.local_rewarding == True and self.target_name.startswith('output') and self.pred_label is not None:
             self.pred_label_mask = torch.zeros(*self.connection.w.shape).to(self.connection.w.device)
