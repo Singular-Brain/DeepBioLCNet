@@ -140,7 +140,7 @@ class DynamicDopamineInjection(AbstractReward):
 
         self.layers = kwargs['dopaminergic_layers']
         self.label = kwargs['true_label']
-        self.dopamine = torch.ones((self.label.shape[0],1))*self.dopamine_base
+        self.dopamine = torch.ones(*self.label.shape)*self.dopamine_base
         self.give_reward = kwargs['give_reward']
         self.variant = kwargs['variant']
         self.sub_variant = kwargs['sub_variant']
