@@ -157,7 +157,6 @@ class DynamicDopamineInjection(AbstractReward):
                 #     self.dopamine += -self.punish_base
                 self.dopamine = self.dopamine + (self.label==kwargs['pred_label']) * self.rew_base \
                     - (self.label!=kwargs['pred_label']) * self.punish_base
-                print(self.dopamine, self.dopamine.shape)
 
 
             elif self.variant == 'per_spike' and self.give_reward:
