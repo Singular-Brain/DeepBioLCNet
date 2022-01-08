@@ -237,17 +237,18 @@ class DynamicDopamineInjection(AbstractReward):
         :param float ema_window: Width of the averaging window.
         """
         # Get keyword arguments.
-        self.accumulated_reward = kwargs["accumulated_reward"]
-        #steps = torch.tensor(kwargs["steps"]).float()
-        ema_window = torch.tensor(kwargs.get("ema_window", 10.0))
+        if self.sub_variant != 'static':
+            self.accumulated_reward = kwargs["accumulated_reward"]
+            #steps = torch.tensor(kwargs["steps"]).float()
+            ema_window = torch.tensor(kwargs.get("ema_window", 10.0))
 
-        # Compute average reward per step.
-        # self.reward = self.accumulated_reward / steps
+            # Compute average reward per step.
+            # self.reward = self.accumulated_reward / steps
 
-        # Update EMAs.
-        # self.reward_predict = (1 - 1 / ema_window) * self.reward_predict + 1 / ema_window * self.reward
-        self.reward_predict_episode = (1 - 1 / ema_window) * self.reward_predict_episode + 1 / ema_window * self.accumulated_reward
-        self.rewards_predict_episode.append(self.reward_predict_episode.item())
+            # Update EMAs.
+            # self.reward_predict = (1 - 1 / ema_window) * self.reward_predict + 1 / ema_window * self.reward
+            self.reward_predict_episode = (1 - 1 / ema_window) * self.reward_predict_episode + 1 / ema_window * self.accumulated_reward
+            self.rewards_predict_episode.append(self.reward_predict_episode.item())
 
     def online_compute(self, **kwargs) -> None:
         # language=rst
