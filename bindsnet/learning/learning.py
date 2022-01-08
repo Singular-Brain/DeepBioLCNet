@@ -734,7 +734,7 @@ class MSTDP(LearningRule):
         a_minus = torch.tensor(
             kwargs.get("a_minus", -1.0), device=self.connection.w.device
         )
-
+        print(reward.shape)
         # Compute weight update based on the eligibility value of the past timestep.
         update =  reward.view(batch_size, 1, 1).to(self.connection.w.device) * self.eligibility
 
