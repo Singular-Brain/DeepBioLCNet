@@ -155,7 +155,7 @@ class DynamicDopamineInjection(AbstractReward):
                 #     self.dopamine += self.rew_base
                 # else:
                 #     self.dopamine += -self.punish_base
-                self.dopamine = self.dpamine + (self.label==kwargs['pred_label']) * self.rew_base \
+                self.dopamine = self.dopamine + (self.label==kwargs['pred_label']) * self.rew_base \
                     - (self.label!=kwargs['pred_label']) * self.punish_base
 
 
