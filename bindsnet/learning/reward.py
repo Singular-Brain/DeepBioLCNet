@@ -35,6 +35,54 @@ class AbstractReward(ABC):
         """
         pass
 
+
+class RLTasks(AbstractReward):
+    # language=rst
+    """
+    Computes the reward for a given RL task in the current state
+    """
+    def __init__(
+        self,
+        env,
+        **kwargs,
+    ) -> None:
+
+        super().__init__()
+
+        if env.spec.id == "CartPole-v0":
+            self.compute = self._cartPole_compute
+        elif env.spec.id == "MountainCar-v0-v0":
+            self.compute = self._mountainCar_compute
+        elif env.spec.id == "BreakoutDeterministic-v4":
+            self.compute = self._breakout_compute
+        else:
+            raise NotImplementedError(
+                "This rl environment is not currently supported."
+            )
+    
+    def _cartPole_compute(self, **kwargs):
+        env = kwargs['env']
+        state = self.env.state
+        success = kwargs['success']
+        failure = kwargs['failure']
+        x, x_dot, theta, theta_dot = state
+        r1 = (env.x_threshold - abs(x)) / env.x_threshold - 0.8
+        r2 = (env.theta_threshold_radians - abs(theta)) / env.theta_threshold_radians - 0.5
+        reward = r1 + r2
+        if success:
+            reward += 20
+        elif failure:
+            reward -= 20
+        reward = torch.tensor([reward])
+        return reward
+
+    def _mountainCar_compute(self):
+        pass
+
+    def _breakout_compute(self):
+        pass
+
+
 class MovingAvgRPE(AbstractReward):
     # language=rst
     """
