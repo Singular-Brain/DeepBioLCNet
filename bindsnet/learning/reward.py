@@ -63,16 +63,16 @@ class RLTasks(AbstractReward):
     def _cartPole_compute(self, **kwargs):
         env = kwargs['env']
         state = self.env.state
-        success = kwargs['success']
-        failure = kwargs['failure']
+        # success = kwargs['success']
+        # failure = kwargs['failure']
         x, x_dot, theta, theta_dot = state
         r1 = (env.x_threshold - abs(x)) / env.x_threshold - 0.8
         r2 = (env.theta_threshold_radians - abs(theta)) / env.theta_threshold_radians - 0.5
         reward = r1 + r2
-        if success:
-            reward += 20
-        elif failure:
-            reward -= 20
+        # if success:
+        #     reward += 20
+        # elif failure:
+        #     reward -= 20
         reward = torch.tensor([reward])
         return reward
 
