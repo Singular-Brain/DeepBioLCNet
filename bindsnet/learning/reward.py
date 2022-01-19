@@ -62,7 +62,7 @@ class RLTasks(AbstractReward):
     
     def _cartPole_compute(self, **kwargs):
         env = kwargs['env']
-        state = self.env.state
+        state = env.state
         # success = kwargs['success']
         # failure = kwargs['failure']
         x, x_dot, theta, theta_dot = state
