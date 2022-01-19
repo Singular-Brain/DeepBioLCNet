@@ -43,17 +43,17 @@ class RLTasks(AbstractReward):
     """
     def __init__(
         self,
-        env,
+        env_id,
         **kwargs,
     ) -> None:
 
         super().__init__()
 
-        if env.spec.id == "CartPole-v0":
+        if env_id == "CartPole-v0":
             self.compute = self._cartPole_compute
-        elif env.spec.id == "MountainCar-v0-v0":
+        elif env_id == "MountainCar-v0-v0":
             self.compute = self._mountainCar_compute
-        elif env.spec.id == "BreakoutDeterministic-v4":
+        elif env_id == "BreakoutDeterministic-v4":
             self.compute = self._breakout_compute
         else:
             raise NotImplementedError(
@@ -81,7 +81,12 @@ class RLTasks(AbstractReward):
 
     def _breakout_compute(self):
         pass
+        
+    def update(self):
+        pass
 
+    def online_compute(self,):
+        pass
 
 class MovingAvgRPE(AbstractReward):
     # language=rst
