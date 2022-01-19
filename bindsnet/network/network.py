@@ -377,6 +377,11 @@ class Network(torch.nn.Module):
         # Effective number of timesteps.
         timesteps = int(self.time / self.dt)
 
+        try:
+            self.n_classes = self.n_actions
+            self.neuron_per_class = self.neuron_per_action
+        except:
+            pass
         # Simulate network activity for `time` timesteps.
         for t in range(timesteps):
 
