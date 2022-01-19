@@ -699,7 +699,10 @@ class MSTDP(LearningRule):
 
         self.pred_label = kwargs['pred_label']
         self.local_rewarding = kwargs['local_rewarding']
-        self.neuron_per_class = kwargs['neuron_per_class']
+        try:
+            self.neuron_per_class = kwargs['neuron_per_class']
+        except:
+            self.neuron_per_class = kwargs['neuron_per_action']
         self.target_name = kwargs['target_name']
 
         # Initialize eligibility, P^+, and P^-.
@@ -1010,7 +1013,10 @@ class MSTDPET(LearningRule):
 
         self.pred_label = kwargs['pred_label']
         self.local_rewarding = kwargs['local_rewarding']
-        self.neuron_per_class = kwargs['neuron_per_class']
+        try:
+            self.neuron_per_class = kwargs['neuron_per_class']
+        except:
+            self.neuron_per_class = kwargs['neuron_per_action']
         self.target_name = kwargs['target_name']
 
         # Reshape pre- and post-synaptic spikes.
