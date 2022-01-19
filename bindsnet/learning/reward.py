@@ -9,13 +9,13 @@ class AbstractReward(ABC):
     Abstract base class for reward computation.
     """
 
-    @abstractmethod
-    def compute(self, **kwargs) -> None:
-        # language=rst
-        """
-        Computes/modifies reward.
-        """
-        pass
+    # @abstractmethod
+    # def compute(self, **kwargs) -> None:
+    #     # language=rst
+    #     """
+    #     Computes/modifies reward.
+    #     """
+    #     pass
 
     @abstractmethod
     def update(self, **kwargs) -> None:
