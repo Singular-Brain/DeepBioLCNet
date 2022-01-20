@@ -1048,7 +1048,7 @@ class MSTDPET(LearningRule):
         else:
             self.connection.w += (
                 self.nu[0] * self.connection.dt * reward * self.eligibility_trace
-            )*self.soft_bound_decay()
+            )*self.soft_bound_decay().to(self.connection.w.device)
 
         # Update P^+ and P^- values.
         self.p_plus *= torch.exp(-self.connection.dt / self.tc_plus)
