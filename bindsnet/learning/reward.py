@@ -67,12 +67,12 @@ class RLTasks(AbstractReward):
         failure = kwargs['failure']
         x, x_dot, theta, theta_dot = state
         r1 = (env.x_threshold - abs(x)) / env.x_threshold - 0.8
-        r2 = ((env.theta_threshold_radians - abs(theta)) / env.theta_threshold_radians - 0.5)*2
+        r2 = ((env.theta_threshold_radians - abs(theta)) / env.theta_threshold_radians - 0.5)#*2
         reward = r1 + r2
         if success:
-            reward += 10
+            reward += 20
         elif failure:
-            reward -= 10
+            reward -= 20
         reward = torch.tensor([reward])
         return reward
 
