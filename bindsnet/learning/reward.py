@@ -61,6 +61,14 @@ class RLTasks(AbstractReward):
             )
     
     def _cartPole_compute(self, **kwargs):
+        success = kwargs['success']
+        failure = kwargs['failure']
+        if kwargs['classic_reward']:
+            if failure:
+                return torch.tensor([0.])
+            else:
+                return torch.tensor([1.])
+
         env = kwargs['env']
         state = env.state
         success = kwargs['success']
