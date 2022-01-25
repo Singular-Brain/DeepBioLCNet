@@ -699,7 +699,10 @@ class MSTDP(LearningRule):
 
         self.pred_label = kwargs['pred_label']
         self.local_rewarding = kwargs['local_rewarding']
-        self.neuron_per_class = kwargs['neuron_per_class']
+        try:
+            self.neuron_per_class = kwargs['neuron_per_class']
+        except:
+            self.neuron_per_class = kwargs['neuron_per_action']
         self.target_name = kwargs['target_name']
 
         # Initialize eligibility, P^+, and P^-.
@@ -1010,7 +1013,10 @@ class MSTDPET(LearningRule):
 
         self.pred_label = kwargs['pred_label']
         self.local_rewarding = kwargs['local_rewarding']
-        self.neuron_per_class = kwargs['neuron_per_class']
+        try:
+            self.neuron_per_class = kwargs['neuron_per_class']
+        except:
+            self.neuron_per_class = kwargs['neuron_per_action']
         self.target_name = kwargs['target_name']
 
         # Reshape pre- and post-synaptic spikes.
@@ -1019,6 +1025,7 @@ class MSTDPET(LearningRule):
 
         # Parse keyword arguments.
         reward = kwargs["reward"]
+        reward = reward.to(self.connection.w.device)
         a_plus = torch.tensor(
             kwargs.get("a_plus", 1.0), device=self.connection.w.device
         )
@@ -1042,7 +1049,7 @@ class MSTDPET(LearningRule):
         else:
             self.connection.w += (
                 self.nu[0] * self.connection.dt * reward * self.eligibility_trace
-            )*self.soft_bound_decay()
+            ).to(self.connection.w.device)*(self.soft_bound_decay())
 
         # Update P^+ and P^- values.
         self.p_plus *= torch.exp(-self.connection.dt / self.tc_plus)

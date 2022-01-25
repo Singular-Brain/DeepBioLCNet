@@ -9,13 +9,13 @@ class AbstractReward(ABC):
     Abstract base class for reward computation.
     """
 
-    @abstractmethod
-    def compute(self, **kwargs) -> None:
-        # language=rst
-        """
-        Computes/modifies reward.
-        """
-        pass
+    # @abstractmethod
+    # def compute(self, **kwargs) -> None:
+    #     # language=rst
+    #     """
+    #     Computes/modifies reward.
+    #     """
+    #     pass
 
     @abstractmethod
     def update(self, **kwargs) -> None:
@@ -33,6 +33,67 @@ class AbstractReward(ABC):
         Updates internal variables needed to modify reward. Usually called once per
         episode.
         """
+        pass
+
+
+class RLTasks(AbstractReward):
+    # language=rst
+    """
+    Computes the reward for a given RL task in the current state
+    """
+    def __init__(
+        self,
+        env_id,
+        **kwargs,
+    ) -> None:
+
+        super().__init__()
+
+        if env_id == "CartPole-v0":
+            self.compute = self._cartPole_compute
+        elif env_id == "MountainCar-v0-v0":
+            self.compute = self._mountainCar_compute
+        elif env_id == "BreakoutDeterministic-v4":
+            self.compute = self._breakout_compute
+        else:
+            raise NotImplementedError(
+                "This rl environment is not currently supported."
+            )
+    
+    def _cartPole_compute(self, **kwargs):
+        success = kwargs['success']
+        failure = kwargs['failure']
+        if kwargs['classic_reward']:
+            if failure:
+                return torch.tensor([0.])
+            else:
+                return torch.tensor([1.])
+
+        env = kwargs['env']
+        state = env.state
+        success = kwargs['success']
+        failure = kwargs['failure']
+        x, x_dot, theta, theta_dot = state
+        r1 = (env.x_threshold - abs(x)) / env.x_threshold - 0.8
+        r2 = ((env.theta_threshold_radians - abs(theta)) / env.theta_threshold_radians - 0.5)#*2
+        reward = r1 + r2
+        if success:
+            reward += 20
+        elif failure:
+            reward -= 20
+        reward = torch.tensor([reward])
+        return reward
+
+    def _mountainCar_compute(self):
+        pass
+
+    def _breakout_compute(self):
+        pass
+        
+    def update(self):
+        pass
+
+    def online_compute(self,):
         pass
 
 class MovingAvgRPE(AbstractReward):
