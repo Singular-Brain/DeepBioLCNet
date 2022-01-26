@@ -808,7 +808,7 @@ class LocalConnection(AbstractConnection):
             1,
         )
         
-        a_post = self.s_unfold.to(self.w.device) * self.w
+        a_post = self.s_unfold.to(self.w.device) * self.w + self.b
         # print(a_post.sum(-1).shape)
         # print(a_post.sum(-1).sum(1).view(batch_size, self.out_channels, *self.conv_size).shape)
         return a_post.sum(-1).sum(1).view(batch_size, self.out_channels, *self.conv_size)
