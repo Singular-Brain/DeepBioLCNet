@@ -777,9 +777,9 @@ class LocalConnection(AbstractConnection):
             w = torch.clamp(w, self.wmin, self.wmax)
 
         self.w = Parameter(w, requires_grad=False)
-        self.b = Parameter(kwargs.get("b", None), requires_grad=False)
-
-
+        self.b = Parameter(kwargs.get("b", torch.zeros(target.n)), requires_grad=False)            
+        if self.b is None:
+            self.b = Parameter(torch.zeros(target.n), requires_grad=False)
     def compute(self, s: torch.Tensor) -> torch.Tensor:
         """
         Compute pre-activations given spikes using layer weights.
