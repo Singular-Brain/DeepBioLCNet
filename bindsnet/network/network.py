@@ -107,7 +107,7 @@ class Network(torch.nn.Module):
 
         self.dt = dt
         self.batch_size = batch_size
-
+        self.cartpole_online = False
         self.layers = {}
         self.connections = {}
         self.monitors = {}
@@ -387,7 +387,7 @@ class Network(torch.nn.Module):
         for t in range(timesteps):
 
             # Make a decision and compute reward
-            if  self.online == False:
+            if  self.online == False and self.cartpole_online == False:
                 if (self.has_decision_period and t == self.observation_period+self.decision_period):
                     out_spikes = self.spikes["output"].get("s").view(t, self.batch_size, self.n_classes, self.neuron_per_class)
                     sum_spikes = out_spikes[self.observation_period:t,:,:].sum(0).sum(2)
@@ -450,20 +450,25 @@ class Network(torch.nn.Module):
 
             # Run synapse updates.
             for c in self.connections:
-                if self.reward_fn is None:
-                    self.connections[c].update(
-                        mask=masks.get(c, None), learning=self.learning, **kwargs
-                        )
-                else:
-                    if t < self.time-self.learning_period and c[1].startswith("output"):
-                        self.connections[c].update(
-                            mask=masks.get(c, None), learning=False, **kwargs
-                            )
-                    else:
-                        kwargs['target_name'] = c[1]
+                if self.cartpole_online == True:
+                    if self.reward_fn is None:
                         self.connections[c].update(
                             mask=masks.get(c, None), learning=self.learning, **kwargs
                             )
+                    else:
+                        if t < self.time-self.learning_period and c[1].startswith("output"):
+                            self.connections[c].update(
+                                mask=masks.get(c, None), learning=False, **kwargs
+                                )
+                        else:
+                            kwargs['target_name'] = c[1]
+                            self.connections[c].update(
+                                mask=masks.get(c, None), learning=self.learning, **kwargs
+                                )
+                else:
+                    self.connections[c].update(
+                        mask=masks.get(c, None), learning=self.learning, **kwargs
+                        )
 
             # # Get input to all layers.
             # current_inputs.update(self._get_inputs())
