@@ -450,7 +450,7 @@ class Network(torch.nn.Module):
 
             # Run synapse updates.
             for c in self.connections:
-                if self.cartpole_online == True:
+                if self.cartpole_online == False:
                     if self.reward_fn is None:
                         self.connections[c].update(
                             mask=masks.get(c, None), learning=self.learning, **kwargs
