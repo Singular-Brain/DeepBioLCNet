@@ -881,6 +881,7 @@ class DepthWiseLocalConnection(LocalConnection):
                 self.n_same_depth_filters*depth*self.conv_prod:self.n_same_depth_filters*(depth+1)*self.conv_prod,
                 :] = 1
 
+        mask = mask.bool()
         self.w.masked_fill_(mask, 0)
         self.register_buffer("mask", mask)
     
