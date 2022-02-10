@@ -874,15 +874,15 @@ class DepthWiseLocalConnection(LocalConnection):
             f"out_channels (={self.out_channels}) must be a divisible by in_channels - kernel_depth + 1 (={self.in_channels - self.kernel_depth + 1})"
         )
         self.n_same_depth_filters = self.out_channels // (self.in_channels - self.kernel_depth + 1) 
-        self.mask = torch.zeros_like(self.w).to(self.w.device)
+        mask = torch.zeros_like(self.w).to(self.w.device)
         for depth in range(self.in_channels - self.kernel_depth):
-            self.mask[
+            mask[
                 depth:depth+self.kernel_depth, 
                 self.n_same_depth_filters*depth*self.conv_prod:self.n_same_depth_filters*(depth+1)*self.conv_prod,
                 :] = 1
 
-        self.mask = self.mask.bool()
-        self.w.masked_fill_(self.mask, 0)
+        self.w.masked_fill_(mask, 0)
+        self.register_buffer("mask", mask)
     
     
     def update(self, **kwargs) -> None:
