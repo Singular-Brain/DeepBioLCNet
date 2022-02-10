@@ -864,7 +864,7 @@ class LocalConnection(AbstractConnection):
     def deactivate_learning(self):
         self.update_rule = self._deactivated_update_rule
 
-class DepthWiseLocalConnection2D(LocalConnection2D):
+class DepthWiseLocalConnection(LocalConnection):
     # w: ch_in, ch_out * w_out * h_out, k ** 2
     def __init__(self, kernel_depth, **kwargs):
         super().__init__(**kwargs)
