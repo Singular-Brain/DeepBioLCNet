@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 from typing import Union, Tuple, Optional, Sequence
-from ..learning import NoOp
 
 import numpy as np
 import torch
@@ -786,6 +785,7 @@ class LocalConnection(AbstractConnection):
         self.w = Parameter(w, requires_grad=False)
         self.b = Parameter(kwargs.get("b", None), requires_grad=False)
 
+        from ..learning import NoOp
 
         self._active_update_rule = self.update_rule 
         self._deactivated_update_rule= NoOp(
