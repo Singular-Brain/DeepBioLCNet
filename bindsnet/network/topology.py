@@ -749,17 +749,17 @@ class LocalConnection(AbstractConnection):
             sqrt = int(np.sqrt(source.n))
             shape = _pair(sqrt)
             
-        if kernel_size == shape:
+        if self.kernel_size == shape:
             conv_size = [1, 1]
         else:
             conv_size = (
-                (shape[0] - kernel_size[0]) // stride[0] + 1,
-                (shape[1] - kernel_size[1]) // stride[1] + 1,
+                (shape[0] - self.kernel_size[0]) // self.stride[0] + 1,
+                (shape[1] - self.kernel_size[1]) // self.stride[1] + 1,
             )
 
         self.conv_size = conv_size
         self.conv_prod = int(np.prod(conv_size))
-        self.kernel_prod = int(np.prod(kernel_size))
+        self.kernel_prod = int(np.prod(self.kernel_size))
          
         assert (
             target.n == out_channels * self.conv_prod
