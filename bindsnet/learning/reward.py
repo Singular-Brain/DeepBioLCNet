@@ -205,11 +205,14 @@ class DynamicDopamineInjection(AbstractReward):
         self.give_reward = kwargs['give_reward']
         self.variant = kwargs['variant']
         self.sub_variant = kwargs['sub_variant']
+        self.constant_rew = kwargs['constant_rew']
         # if self.variant == 'rl_td':
         #     self.alpha = kwargs['alpha']
         #     self.gamma = kwargs['gamma']
 
-        
+        if self.constant_rew:
+            return torch.tensor([1.0])
+
         if self.sub_variant == 'static':
             if self.variant == 'scalar' and self.give_reward:
                 # if self.label == kwargs['pred_label']:
@@ -283,6 +286,8 @@ class DynamicDopamineInjection(AbstractReward):
 
         else:
             raise ValueError("sub_variant not specified")
+
+
         return torch.tensor(self.dopamine)
         
     def update(self, **kwargs) -> None:
