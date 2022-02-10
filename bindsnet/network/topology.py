@@ -842,7 +842,7 @@ class LocalConnection(AbstractConnection):
             # get a view and modify in-place
             # w: ch_in, ch_out * w_out * h_out, k ** 2
             w = self.w.view(
-                self.w.shape[0]*self.w.shape[1], self.w.shape[2]
+                self.w.shape[1], self.w.shape[0]*self.w.shape[2]
             )
 
             for fltr in range(w.shape[0]):
@@ -893,7 +893,6 @@ class DepthWiseLocalConnection(LocalConnection):
         if kwargs["mask"] is None:
             kwargs["mask"] = self.mask
         super().update(**kwargs)
-
 
 
 class MaxPool2dLocalConnection(AbstractConnection):
