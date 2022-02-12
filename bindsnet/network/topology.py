@@ -864,6 +864,38 @@ class LocalConnection(AbstractConnection):
     def deactivate_learning(self):
         self.update_rule = self._deactivated_update_rule
 
+class DepthWiseLocalConnectionMaxPooling(LocalConnection):
+    # w: ch_in, ch_out * w_out * h_out, k ** 2
+    def __init__(self, kernel_depth, weight_value=None, **kwargs):
+        super().__init__(**kwargs)
+        self.kernel_depth = kernel_depth
+        assert (
+            self.out_channels % (self.in_channels - self.kernel_depth + 1) ,
+            f"out_channels (={self.out_channels}) must be a divisible by in_channels - kernel_depth + 1 (={self.in_channels - self.kernel_depth + 1})"
+        )
+
+        if weight_value is None:
+            weight_value = self.target.thresh - self.target.reset
+
+        self.n_same_depth_filters = self.out_channels // (self.in_channels - self.kernel_depth + 1) 
+        self.w.fill_(0)
+        for depth in range(self.in_channels - self.kernel_depth):
+            self.w[
+                depth:depth+self.kernel_depth, 
+                self.n_same_depth_filters*depth*self.conv_prod:self.n_same_depth_filters*(depth+1)*self.conv_prod,
+                :] = weight_value
+    
+        
+        from ..learning import NoOp
+        self.update_rule = NoOp(
+            connection=self,
+        )
+
+
+    def update(self, **kwargs) -> None:
+        pass
+
+
 class DepthWiseLocalConnection(LocalConnection):
     # w: ch_in, ch_out * w_out * h_out, k ** 2
     def __init__(self, kernel_depth, **kwargs):
